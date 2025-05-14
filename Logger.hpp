@@ -5,7 +5,9 @@
 #include <sstream>
 #include "DateTime.hpp"
 
-#define DASH " - "
+#define DASH_SEP " - "
+#define LEFT_BRACKET "["
+#define RIGHT_BRACKET "]"
 
 enum logLevel
 {
@@ -21,13 +23,13 @@ class Logger
 public:
 	Logger(logLevel l)
 	{
-		m_name = "";
+		m_log_name = "";
 		m_level = l;
 	}
 
 	Logger(const std::string log_name, logLevel l)
 	{
-		m_name = "[" + log_name + "]";
+		m_log_name = LEFT_BRACKET + log_name + RIGHT_BRACKET;
 		m_level = l;
 	}
 
@@ -43,8 +45,8 @@ public:
 		if (m_level < logLevel::NOTICE)
 			return;
 
-		std::string msg = formatArgsToString(args...);
-		prepareOutput(msg, logLevel::NOTICE);
+		std::string text = formatArgsToString(args...);
+		prepareOutput(text, logLevel::NOTICE);
 	}
 
 	template<typename... Args>
@@ -53,8 +55,8 @@ public:
 		if (m_level < logLevel::WARNING)
 			return;
 
-		std::string msg = formatArgsToString(args...);
-		prepareOutput(msg, logLevel::WARNING);
+		std::string text = formatArgsToString(args...);
+		prepareOutput(text, logLevel::WARNING);
 	}
 
 	template<typename... Args>
@@ -63,8 +65,8 @@ public:
 		if (m_level < logLevel::ERROR)
 			return;
 
-		std::string msg = formatArgsToString(args...);
-		prepareOutput(msg, logLevel::ERROR);
+		std::string text = formatArgsToString(args...);
+		prepareOutput(text, logLevel::ERROR);
 	}
 
 	template<typename... Args>
@@ -73,8 +75,8 @@ public:
 		if (m_level < logLevel::INFO)
 			return;
 
-		std::string msg = formatArgsToString(args...);
-		prepareOutput(msg, logLevel::INFO);
+		std::string text = formatArgsToString(args...);
+		prepareOutput(text, logLevel::INFO);
 	}
 
 	template<typename... Args>
@@ -83,31 +85,16 @@ public:
 		if (m_level < logLevel::DEBUG)
 			return;
 
-		std::string msg = formatArgsToString(args...);
-		prepareOutput(msg, logLevel::DEBUG);
+		std::string text = formatArgsToString(args...);
+		prepareOutput(text, logLevel::DEBUG);
 	}
 private:
-	std::string m_name;
-	std::stringstream m_ss;
-	logLevel m_level;
-	DateTime m_dateTime;
-
-	void prepareOutput(const std::string& s, logLevel level)
+	template<typename... Args>
+	std::string formatArgsToString(const Args&... args)
 	{
-		appendToBuffer(m_dateTime.getCurrentDateTime());
-		appendToBuffer(DASH);
-		appendToBuffer(getLogLevelAsString(level));
-
-		if (!m_name.empty())
-		{
-			appendToBuffer(DASH);
-			appendToBuffer(m_name);
-		}
-
-		appendToBuffer(DASH);
-		appendToBuffer(s);
-
-		logOutput();
+		std::ostringstream text;
+		(text << ... << args);
+		return text.str();
 	}
 
 	std::string getLogLevelAsString(logLevel l)
@@ -129,30 +116,39 @@ private:
 		return "";
 	}
 
-	void appendToBuffer(const std::string& s)
+	void appendToBuffer(const std::string& text)
 	{
-		m_ss << s;
+		m_output_stream << text;
 	}
 
 	void clearBuffer()
 	{
-		m_ss.str("");
-		m_ss.clear();
+		m_output_stream.str("");
+		m_output_stream.clear();
 	}
 
 	void logOutput()
 	{
-		std::cout << m_ss.str() << std::endl;
+		std::cout << m_output_stream.str() << std::endl;
 		clearBuffer();
 	}
 
-	template<typename... Args>
-	std::string formatArgsToString(const Args&... args) 
+	void prepareOutput(const std::string& text, logLevel level)
 	{
-		std::ostringstream oss;
-		(oss << ... << args);  
-		return oss.str();
+		appendToBuffer(DateTime::getCurrentDateTime() + DASH_SEP + getLogLevelAsString(level));
+
+		if (!m_log_name.empty())
+			appendToBuffer(DASH_SEP + m_log_name);
+
+		appendToBuffer(DASH_SEP + text);
+
+		logOutput();
 	}
+
+private:
+	std::string m_log_name;
+	std::stringstream m_output_stream;
+	logLevel m_level;
 };
 
 #endif
