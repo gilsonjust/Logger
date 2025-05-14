@@ -10,30 +10,30 @@ class DateTime
 public:
     std::string getCurrentDate() const
     {
-        std::time_t tempoAtual = std::time(nullptr);
-        std::tm tempoLocal;
-        localtime_s(&tempoLocal, &tempoAtual);
+        std::time_t currentTime = std::time(nullptr);
+        std::tm time;
+        localtime_s(&time, &currentTime);
 
         std::ostringstream oss;
 
-        oss << std::setfill('0') << std::setw(2) << tempoLocal.tm_mday << "/"
-            << std::setfill('0') << std::setw(2) << tempoLocal.tm_mon + 1 << "/"
-            << tempoLocal.tm_year + 1900;
+        oss << std::setfill('0') << std::setw(2) << time.tm_mday << "/"
+            << std::setfill('0') << std::setw(2) << time.tm_mon + 1 << "/"
+            << time.tm_year + 1900;
 
         return oss.str();
     }
 
     std::string getCurrentTime() const
     {
-        std::time_t tempoAtual = std::time(nullptr);
-        std::tm tempoLocal;
-        localtime_s(&tempoLocal, &tempoAtual);
+        std::time_t currentTime = std::time(nullptr);
+        std::tm time;
+        localtime_s(&time, &currentTime);
 
         std::ostringstream oss;
 
-        oss << std::setfill('0') << std::setw(2) << tempoLocal.tm_hour << ":"
-            << std::setfill('0') << std::setw(2) << tempoLocal.tm_min << ":"
-            << std::setfill('0') << std::setw(2) << tempoLocal.tm_sec;
+        oss << std::setfill('0') << std::setw(2) << time.tm_hour << ":"
+            << std::setfill('0') << std::setw(2) << time.tm_min << ":"
+            << std::setfill('0') << std::setw(2) << time.tm_sec;
 
         return oss.str();
     }
