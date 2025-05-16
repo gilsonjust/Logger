@@ -1,6 +1,7 @@
 #ifndef _LOGGER_HPP
 #define _LOGGER_HPP
 
+#include <windows.h>
 #include <string>
 #include <sstream>
 #include <iostream>
@@ -10,13 +11,22 @@
 #define LEFT_BRACKET "["
 #define RIGHT_BRACKET "]"
 
-enum logLevel
+enum class logLevel
 {
-	NOTICE,
-	WARNING,
-	ERROR,
-	INFO,
-	DEBUG
+	L_NOTICE,
+	L_WARNING,
+	L_ERROR,
+	L_INFO,
+	L_DEBUG
+};
+
+enum class logColor
+{
+	C_GREEN,
+	C_RED,
+	C_BLUE,
+	C_YELLOW,
+	C_NORMAL
 };
 
 class Logger
@@ -56,51 +66,51 @@ public:
 	template<typename... Args>
 	void notice(const Args&... args)
 	{
-		if (m_level < logLevel::NOTICE)
+		if (m_level < logLevel::L_NOTICE)
 			return;
 
 		std::string text = formatArgsToString(args...);
-		prepareLogToOutput(text, logLevel::NOTICE);
+		prepareLogToOutput(text, logLevel::L_NOTICE);
 	}
 
 	template<typename... Args>
 	void warning(const Args&... args)
 	{
-		if (m_level < logLevel::WARNING)
+		if (m_level < logLevel::L_WARNING)
 			return;
 
 		std::string text = formatArgsToString(args...);
-		prepareLogToOutput(text, logLevel::WARNING);
+		prepareLogToOutput(text, logLevel::L_WARNING);
 	}
 
 	template<typename... Args>
 	void error(const Args&... args)
 	{
-		if (m_level < logLevel::ERROR)
+		if (m_level < logLevel::L_ERROR)
 			return;
 
 		std::string text = formatArgsToString(args...);
-		prepareLogToOutput(text, logLevel::ERROR);
+		prepareLogToOutput(text, logLevel::L_ERROR);
 	}
 
 	template<typename... Args>
 	void info(const Args&... args)
 	{
-		if (m_level < logLevel::INFO)
+		if (m_level < logLevel::L_INFO)
 			return;
 
 		std::string text = formatArgsToString(args...);
-		prepareLogToOutput(text, logLevel::INFO);
+		prepareLogToOutput(text, logLevel::L_INFO);
 	}
 
 	template<typename... Args>
 	void debug(const Args&... args)
 	{
-		if (m_level < logLevel::DEBUG)
+		if (m_level < logLevel::L_DEBUG)
 			return;
 
 		std::string text = formatArgsToString(args...);
-		prepareLogToOutput(text, logLevel::DEBUG);
+		prepareLogToOutput(text, logLevel::L_DEBUG);
 	}
 
 	void newLine(unsigned int lines)
@@ -111,6 +121,33 @@ public:
 		for (unsigned int i = 0; i < lines; i++)
 			logOutput();
 	}
+
+	static void setTextColor(logColor textColor)
+	{
+		HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+
+		switch (textColor)
+		{
+			case logColor::C_GREEN:
+				SetConsoleTextAttribute(hConsole, FOREGROUND_GREEN | FOREGROUND_INTENSITY);
+				break;
+			case logColor::C_RED:
+				SetConsoleTextAttribute(hConsole, FOREGROUND_RED | FOREGROUND_INTENSITY);
+				break;
+			case logColor::C_BLUE:
+				SetConsoleTextAttribute(hConsole, FOREGROUND_BLUE | FOREGROUND_INTENSITY);
+				break;
+			case logColor::C_YELLOW:
+				SetConsoleTextAttribute(hConsole, FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_INTENSITY);
+				break;
+			case logColor::C_NORMAL:
+				SetConsoleTextAttribute(hConsole, FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE);
+				break;
+			default:
+				SetConsoleTextAttribute(hConsole, FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE);
+		}
+	}
+
 private:
 	template<typename... Args>
 	std::string formatArgsToString(const Args&... args)
@@ -124,15 +161,15 @@ private:
 	{
 		switch (l)
 		{
-			case logLevel::DEBUG:
+			case logLevel::L_DEBUG:
 				return "DEBUG";
-			case logLevel::INFO:
+			case logLevel::L_INFO:
 				return "INFO";
-			case logLevel::ERROR:
+			case logLevel::L_ERROR:
 				return "ERROR";
-			case logLevel::WARNING:
+			case logLevel::L_WARNING:
 				return "WARNING";
-			case logLevel::NOTICE:
+			case logLevel::L_NOTICE:
 				return "NOTICE";
 		}
 
