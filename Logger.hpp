@@ -3,6 +3,7 @@
 
 #include <string>
 #include <sstream>
+#include <iostream>
 #include "DateTime.hpp"
 
 #define DASH_SEP " - "
@@ -39,6 +40,19 @@ public:
 		m_level = l;
 	}
 
+	logLevel getLogLevel() const
+	{
+		return m_level;
+	}
+
+	std::string getLoggerName() const
+	{
+		if (m_log_name.empty())
+			return "";
+
+		return m_log_name;
+	}
+
 	template<typename... Args>
 	void notice(const Args&... args)
 	{
@@ -46,7 +60,7 @@ public:
 			return;
 
 		std::string text = formatArgsToString(args...);
-		prepareOutput(text, logLevel::NOTICE);
+		prepareLogToOutput(text, logLevel::NOTICE);
 	}
 
 	template<typename... Args>
@@ -56,7 +70,7 @@ public:
 			return;
 
 		std::string text = formatArgsToString(args...);
-		prepareOutput(text, logLevel::WARNING);
+		prepareLogToOutput(text, logLevel::WARNING);
 	}
 
 	template<typename... Args>
@@ -66,7 +80,7 @@ public:
 			return;
 
 		std::string text = formatArgsToString(args...);
-		prepareOutput(text, logLevel::ERROR);
+		prepareLogToOutput(text, logLevel::ERROR);
 	}
 
 	template<typename... Args>
@@ -76,7 +90,7 @@ public:
 			return;
 
 		std::string text = formatArgsToString(args...);
-		prepareOutput(text, logLevel::INFO);
+		prepareLogToOutput(text, logLevel::INFO);
 	}
 
 	template<typename... Args>
@@ -86,7 +100,16 @@ public:
 			return;
 
 		std::string text = formatArgsToString(args...);
-		prepareOutput(text, logLevel::DEBUG);
+		prepareLogToOutput(text, logLevel::DEBUG);
+	}
+
+	void newLine(unsigned int lines)
+	{
+		if (lines == 0)
+			return;
+
+		for (unsigned int i = 0; i < lines; i++)
+			logOutput();
 	}
 private:
 	template<typename... Args>
@@ -133,7 +156,7 @@ private:
 		clearBuffer();
 	}
 
-	void prepareOutput(const std::string& text, logLevel level)
+	void prepareLogToOutput(const std::string& text, logLevel level)
 	{
 		appendToBuffer(DateTime::getCurrentDateTime() + DASH_SEP + getLogLevelAsString(level));
 
