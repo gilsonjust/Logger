@@ -1,3 +1,3 @@
 Simple logger C++ class
 
-![image](https://github.com/user-attachments/assets/7a4301af-98f9-4729-bfb1-3958bd9db629)
+![image](https://github.com/user-attachments/assets/d40135bc-475b-417b-98a0-e82209cb2e8b)
