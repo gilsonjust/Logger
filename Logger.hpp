@@ -10,6 +10,13 @@
 #define DASH_SEP " - "
 #define LEFT_BRACKET "["
 #define RIGHT_BRACKET "]"
+#define F_NAME_LINE LEFT_BRACKET, __FUNCTION__, ":", __LINE__, RIGHT_BRACKET, DASH_SEP
+
+#define LOG_DEBUG(logger, ...) logger.debug(F_NAME_LINE, __VA_ARGS__)
+#define LOG_INFO(logger, ...)  logger.info (F_NAME_LINE, __VA_ARGS__)
+#define LOG_ERROR(logger, ...) logger.error(F_NAME_LINE, __VA_ARGS__)
+#define LOG_WARN(logger, ...)  logger.warning(F_NAME_LINE, __VA_ARGS__)
+#define LOG_NOTICE(logger, ...) logger.notice(F_NAME_LINE, __VA_ARGS__)
 
 enum class logLevel
 {
@@ -195,11 +202,12 @@ private:
 
 	void prepareLogToOutput(const std::string& text, logLevel level)
 	{
-		appendToBuffer(DateTime::getCurrentDateTime() + DASH_SEP + getLogLevelAsString(level));
+		appendToBuffer(DateTime::getCurrentDateTime());
 
 		if (!m_log_name.empty())
 			appendToBuffer(DASH_SEP + m_log_name);
 
+		appendToBuffer(DASH_SEP + getLogLevelAsString(level));
 		appendToBuffer(DASH_SEP + text);
 
 		logOutput();
